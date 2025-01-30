@@ -2,17 +2,16 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Error from './components/Error'
+import CreateForm from './components/CreateForm'
 import blogService from './services/blogs'
+import Togglable from './components/Togglable'
+
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-  const [likes, setLikes] = useState(0)
   const [notification, setNotification] = useState(null)
   const [error, setError] = useState(null)
 
@@ -54,32 +53,6 @@ const App = () => {
     }, 5000)
   }
 
-  const handleCreate = async (event) => {
-    event.preventDefault()
-    try {
-      const newBlog = {
-        title,
-        author,
-        url,
-        likes
-      }
-
-      const createdBlog = await blogService.create(newBlog)
-      setBlogs(blogs.concat(createdBlog))
-
-      setNotification('New blog created successfully')
-      setTimeout(() => {
-        setNotification(null)
-      },5000)
-    } catch (exception) {
-      console.log('Something wend wrong with creating a new blog', exception)
-      setError('Something went wrong with creating a new blog')
-      setTimeout(() => {
-        setError(null)
-      }, 5000)
-    }
-  }
-
   const loginForm = () => {
     return (
       <form onSubmit={handleLogin}>
@@ -116,58 +89,14 @@ const App = () => {
     </div>
   )
 
-  const createForm = () => {
-    return (
-      <form onSubmit={handleCreate}>
-        <div>
-          title:
-          <input
-            type="text"
-            value={title}
-            name="Title"
-            onChange={(event) => setTitle(event.target.value)}
-          />
-        </div>
-        <div>
-          author:
-          <input
-            type="text"
-            value={author}
-            name="Author"
-            onChange={(event) => setAuthor(event.target.value)} 
-          />
-        </div>
-        <div>
-          url:
-          <input
-            type="text"
-            value={url}
-            name="Url"
-            onChange={(event) => setUrl(event.target.value)} 
-          />
-        </div>
-        <div>
-          likes:
-          <input
-            type="number"
-            value={likes}
-            name="Likes"
-            onChange={(event) => setLikes(event.target.value)} 
-          />
-        </div>
-        <button type="submit">create</button>
-      </form>
-    )
-  }
-
   useEffect(async () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
       blogService.setToken(user.token)
-      const allBLogs = await blogService.getAll();
-      setBlogs(allBLogs)
+      const allBlogs = await blogService.getAll();
+      setBlogs(allBlogs)
     }
   }, [])
 
@@ -176,9 +105,13 @@ const App = () => {
       {error && <Error error={error} />}
       {notification && <Notification notification={notification} />}
 
-      {user && <button onClick={handleLogOut}>logout</button>}
       {user && <p>{user.name} logged in</p>}
-      {user && createForm()}
+      {user && <button onClick={handleLogOut}>logout</button>}
+      {user && 
+        <Togglable buttonLabel="create new blog">
+          <CreateForm setBlogs={setBlogs} setNotification={setNotification} setError={setError}/>
+        </Togglable>
+      }
       {user === null ?
         loginForm() :
         allBlogs()
