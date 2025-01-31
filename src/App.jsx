@@ -78,13 +78,25 @@ const App = () => {
       </form>
     )
   }
+  
+  const increaseLike = async (id) => {
+    await blogService.increaseLike(id)
+    const allBlogs = await blogService.getAll()
+    setBlogs(allBlogs)
+  }
+
+  const deleteBlog = async (id) => {
+    await blogService.deleteBlog(id)
+    const allBlogs = await blogService.getAll()
+    setBlogs(allBlogs)
+  }
 
   const allBlogs = () => (
     <div>
       <h2>blogs</h2>
       <p>{user.name} logged in</p>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
+        <Blog key={blog.id} blog={blog} increaseLike={increaseLike} deleteBlog={deleteBlog}/>
       )}
     </div>
   )
@@ -108,7 +120,7 @@ const App = () => {
       {user && <p>{user.name} logged in</p>}
       {user && <button onClick={handleLogOut}>logout</button>}
       {user && 
-        <Togglable buttonLabel="create new blog">
+        <Togglable buttonLabel="create new blog" cancelLabel="cancel" >
           <CreateForm setBlogs={setBlogs} setNotification={setNotification} setError={setError}/>
         </Togglable>
       }

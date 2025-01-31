@@ -17,6 +17,30 @@ const create = async (newBlog) => {
   return response.data
 }
 
+const increaseLike = async (id) => {
+  const blog = await get(id);
+  blog.likes += 1
+  
+  return update(id, blog)
+
+}
+
+const get = (id) => {
+  const request = axios.get(`${baseUrl}/${id}`)
+  return request.then(response => response.data)
+}
+
+const update = (id, updatedBlog) => {
+  const request = axios.put(`${baseUrl}/${id}` , updatedBlog)
+  return request.then(response => response.data)
+
+}
+
+const deleteBlog = (id) => {
+  const request = axios.delete(`${baseUrl}/${id}`)
+  return request.then(response => response.data)
+}
+
 const getAll = () => {
   const request = axios.get(baseUrl)
   return request.then(response => response.data)
@@ -28,4 +52,4 @@ const login = async (credentials) => {
   return response.data;
 }
 
-export default { getAll, login, setToken, create }
+export default { getAll, login, setToken, create, increaseLike, deleteBlog }
