@@ -94,7 +94,6 @@ const App = () => {
   const allBlogs = () => (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in</p>
       {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
         <Blog key={blog.id} blog={blog} increaseLike={increaseLike} deleteBlog={deleteBlog}/>
       )}
